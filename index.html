@@ -7,7 +7,7 @@
   <title>Reaction Speed Test Project – Home</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Google Fonts: Inter (หัวข้อ/เมนู), Sarabun (เนื้อหาไทย), JetBrains Mono (โค้ด) -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -15,15 +15,14 @@
     rel="stylesheet">
 
   <style>
-    /* ===== Typography (อ่านสบายตา) ===== */
     html,
     body {
       font-family: "Sarabun", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
       line-height: 1.65;
       letter-spacing: .1px;
+      scroll-behavior: smooth;
     }
 
-    /* หัวข้อ/เมนู/ปุ่ม ใช้ Inter ให้คมชัด */
     h1,
     h2,
     h3,
@@ -48,13 +47,11 @@
       font-weight: 600;
     }
 
-    /* โค้ด/ข้อความโมโนสเปซ */
     .mono {
       font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
       font-size: .95rem;
     }
 
-    /* จัดเลขให้กว้างเท่ากัน เวลาอยู่ในคอลัมน์จะอ่านง่าย */
     table td:nth-child(1),
     table td:nth-child(3) {
       font-variant-numeric: tabular-nums;
@@ -62,17 +59,14 @@
       letter-spacing: .15px;
     }
 
-    /* Hero background เดิม */
     .hero {
       background: radial-gradient(1200px 500px at 20% -10%, rgba(86, 182, 194, .12), transparent 60%);
     }
 
-    /* ย่อหน้า lead ให้สบายตา */
     .lead-compact {
-      line-height: 1.6
+      line-height: 1.6;
     }
 
-    /* สไตล์รายการตรวจเช็คเล็ก ๆ */
     .check li::marker {
       content: "✔ ";
       color: #2ecc71;
@@ -85,7 +79,6 @@
 </head>
 
 <body>
-  <!-- Navbar (หัวข้อ/ปุ่ม English) -->
   <nav class="navbar navbar-expand-lg border-bottom">
     <div class="container">
       <a class="navbar-brand fw-semibold" href="./">Reaction Speed Test</a>
@@ -96,32 +89,32 @@
         <ul class="navbar-nav me-auto">
           <li class="nav-item"><a class="nav-link active" href="./">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="./reflex.html">Reflex Test</a></li>
+          <li class="nav-item"><a class="nav-link" href="#abstract">Abstract</a></li>
+          <li class="nav-item"><a class="nav-link" href="#test-procedure">Test Procedure</a></li>
+          <li class="nav-item"><a class="nav-link" href="#wiring">Wiring</a></li>
+          <li class="nav-item"><a class="nav-link" href="#all-details">Source</a></li>
         </ul>
         <a class="btn btn-primary btn-sm" href="./reflex.html">Start Test</a>
       </div>
     </div>
   </nav>
 
-  <!-- Hero -->
   <header class="hero py-5 border-bottom">
     <div class="container">
       <h1 class="fw-bold">Reaction Speed Test Project</h1>
       <p class="lead lead-compact text-secondary">
         โปรเจ็กต์วัดเวลาตอบสนอง (Reaction Time) ด้วย Arduino + จอ 4 หลัก TM1637 และหน้าเว็บ (Web Serial)
-        แสดงผลเป็นตาราง/กราฟ พร้อมบันทึก CSV – ฟรี ไม่ต้องมีเซิร์ฟเวอร์
+        แสดงผลเป็นตาราง/กราฟ พร้อมบันทึก CSV
       </p>
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 flex-wrap">
         <a class="btn btn-primary" href="./reflex.html">Start Test</a>
         <a class="btn btn-outline-light" href="#abstract">View Abstract</a>
-        <!-- ปุ่มไปวิธีทดสอบ -->
         <a class="btn btn-outline-light" href="#test-procedure">View Test Guide</a>
       </div>
     </div>
   </header>
 
   <main class="container py-4">
-
-    <!-- Abstract (หัวข้อ EN, เนื้อหา TH) -->
     <section id="abstract" class="mb-5">
       <h3 class="mb-3">Abstract</h3>
       <p class="text-secondary">
@@ -136,7 +129,6 @@
       </p>
     </section>
 
-    <!-- Overview -->
     <section id="overview" class="mb-5">
       <h3 class="mb-3">Overview</h3>
       <ul class="list-group list-group-flush">
@@ -151,7 +143,6 @@
       </ul>
     </section>
 
-    <!-- How it works -->
     <section id="how-it-works" class="mb-5">
       <h3 class="mb-3">How it works</h3>
       <ol>
@@ -166,102 +157,92 @@
       </div>
     </section>
 
-    <!-- ✅ Test Procedure -->
     <section id="test-procedure" class="mb-5">
       <h3 class="mb-3">Test Procedure</h3>
-
       <div class="row g-3">
         <div class="col-lg-6">
           <div class="card h-100">
             <div class="card-body">
               <h6 class="text-secondary">1) เตรียมฮาร์ดแวร์</h6>
               <ul class="mb-0 check">
-                <li>ต่อจอ <strong>TM1637</strong> → VCC=5V, GND=GND, CLK=D3, DIO=D6</li>
-                <li>ปุ่มกด → D2 ↔ GND และตั้ง <span class="mono">INPUT_PULLUP</span> ในโค้ด</li>
+                <li>TM1637 → VCC=5V, GND=GND, CLK=D3, DIO=D6</li>
+                <li>ปุ่ม → D2 ↔ GND และตั้ง <span class="mono">INPUT_PULLUP</span></li>
                 <li>LED แดง D4 → R 220–330Ω → LED → GND</li>
                 <li>LED เขียว D5 → R 220–330Ω → LED → GND</li>
-                <li>เสียบบอร์ด <strong>Arduino UNO R4</strong> เข้าคอมพิวเตอร์ด้วยสาย USB</li>
+                <li>เสียบ Arduino UNO R4 ด้วยสาย USB</li>
               </ul>
             </div>
           </div>
         </div>
-
         <div class="col-lg-6">
           <div class="card h-100">
             <div class="card-body">
               <h6 class="text-secondary">2) อัปโหลดสเก็ตช์</h6>
               <ul class="mb-0">
-                <li>เปิด Arduino IDE เลือกบอร์ดและพอร์ตให้ตรงกับ UNO R4</li>
-                <li>ติดตั้งไลบรารี <span class="mono">TM1637Display</span> (ผ่าน Library Manager)</li>
-                <li>อัปโหลดสเก็ตช์ที่ส่งบรรทัดผลลัพธ์รูปแบบ <span class="mono">[RT] Reaction = &lt;ms&gt; ms</span> ทาง
-                  Serial ที่ <span class="mono">9600</span> bps</li>
+                <li>เลือกบอร์ด/พอร์ต UNO R4 ใน Arduino IDE</li>
+                <li>ติดตั้งไลบรารี <span class="mono">TM1637Display</span></li>
+                <li>พิมพ์ผลลัพธ์รูปแบบ <span class="mono">[RT] Reaction = &lt;ms&gt; ms</span> ที่ <span
+                    class="mono">9600</span> bps</li>
                 <li>หลังบูต จอควรแสดง 0 และไฟทดสอบติดดับสั้น ๆ</li>
               </ul>
             </div>
           </div>
         </div>
-
         <div class="col-lg-6">
           <div class="card h-100">
             <div class="card-body">
               <h6 class="text-secondary">3) เปิดหน้าเว็บทดสอบ</h6>
               <ul class="mb-0">
-                <li>ไปที่เมนู <strong>Reflex Test</strong> หรือเปิด <span class="mono">reflex.html</span></li>
-                <li>คลิก <strong>Connect</strong> → เลือกพอร์ตของบอร์ด → กด <strong>Connect</strong></li>
-                <li>สถานะเปลี่ยนเป็น <span class="badge text-bg-success">Connected</span> และมี Live Log</li>
-                <li class="warn">หมายเหตุ: ใช้ Chrome/Edge (Desktop) และเปิดผ่าน HTTPS (เช่น GitHub Pages) หรือ <span
-                    class="mono">http://localhost</span></li>
+                <li>เปิด <strong>Reflex Test</strong> หรือไฟล์ <span class="mono">reflex.html</span></li>
+                <li>กด <strong>Connect</strong> เลือกพอร์ตของบอร์ด แล้วเชื่อมต่อ</li>
+                <li>สถานะเป็น <span class="badge text-bg-success">Connected</span> และมี Live Log</li>
+                <li class="warn">ใช้ Chrome/Edge (Desktop) และ HTTPS หรือ <span class="mono">localhost</span></li>
               </ul>
             </div>
           </div>
         </div>
-
         <div class="col-lg-6">
           <div class="card h-100">
             <div class="card-body">
               <h6 class="text-secondary">4) วิธีเล่น/ทดสอบ</h6>
               <ol class="mb-0">
-                <li>กดปุ่มที่บอร์ด 1 ครั้งเพื่อ “เริ่มรอ” (ไฟแดงติด)</li>
-                <li>รอจนไฟเขียว (READY) ติด—ห้ามก่อนเวลา ไม่งั้น <em>False Start</em></li>
-                <li>ไฟเขียวติดแล้วให้กดปุ่มทันที ระบบจะแสดงเวลาตอบสนอง (ms)</li>
-                <li>ผลจะถูกเพิ่มในตาราง/กราฟอัตโนมัติ</li>
-                <li>กดปุ่มอีกครั้งเพื่อรีเซตกลับสู่สถานะเริ่มต้นและทดสอบรอบถัดไป</li>
+                <li>กดปุ่ม 1 ครั้งเพื่อเริ่มรอ (ไฟแดงติด)</li>
+                <li>รอจนไฟเขียว (READY) ติด—ห้ามกดก่อนเวลา</li>
+                <li>ไฟเขียวติดแล้วกดทันที เพื่อหยุดเวลาและบันทึกผล</li>
+                <li>ระบบเพิ่มผลลงตาราง/กราฟอัตโนมัติ</li>
+                <li>กดอีกครั้งเพื่อเริ่มรอบถัดไป</li>
               </ol>
             </div>
           </div>
         </div>
-
         <div class="col-lg-6">
           <div class="card h-100">
             <div class="card-body">
               <h6 class="text-secondary">5) บันทึก/ดูสถิติ</h6>
               <ul class="mb-0">
-                <li>กด <strong>Download CSV</strong> เพื่อบันทึกผลทั้งหมดเป็นไฟล์ .csv</li>
-                <li>กล่อง KPI แสดง <em>Count / Average / Best / Worst</em> แบบเรียลไทม์</li>
-                <li>กราฟเส้น = ค่าตามลำดับการกด, ฮิสโตแกรม = การกระจายค่า (ปรับ Bin ได้)</li>
+                <li>ปุ่ม <strong>Download CSV</strong> เพื่อบันทึกผลทั้งหมด</li>
+                <li>KPI: <em>Count / Average / Best / Worst</em> แบบเรียลไทม์</li>
+                <li>กราฟเส้น = ลำดับการกด, ฮิสโตแกรม = การกระจายค่า (ปรับ Bin ได้)</li>
               </ul>
             </div>
           </div>
         </div>
-
         <div class="col-lg-6">
           <div class="card h-100">
             <div class="card-body">
               <h6 class="text-secondary">Troubleshooting</h6>
               <ul class="mb-0">
-                <li>ขึ้น “Failed to open serial port” → ปิด Serial Monitor ของ IDE และลอง Connect ใหม่</li>
-                <li>ไม่เห็นพอร์ต → ตรวจสาย/ไดรเวอร์ และรีพลักบอร์ด</li>
-                <li>ไม่มี Live Log → เช็กว่าโค้ดพิมพ์บรรทัด <span class="mono">[RT] Reaction = &lt;ms&gt; ms</span>
-                  ตรงรูปแบบ</li>
-                <li>หน้าเว็บยัง Connect ไม่ได้ → ตรวจว่าเปิดผ่าน HTTPS หรือ <span class="mono">localhost</span></li>
+                <li>“Failed to open serial port” → ปิด Serial Monitor ใน IDE แล้ว Connect ใหม่</li>
+                <li>ไม่เห็นพอร์ต → ตรวจสาย/ไดรเวอร์ และเสียบใหม่</li>
+                <li>ไม่มี Live Log → ตรวจบรรทัด <span class="mono">[RT] Reaction = &lt;ms&gt; ms</span></li>
+                <li>ยัง Connect ไม่ได้ → เปิดผ่าน HTTPS หรือ <span class="mono">localhost</span></li>
               </ul>
             </div>
           </div>
         </div>
-      </div><!-- /row -->
+      </div>
     </section>
 
-    <!-- Wiring quick ref -->
     <section id="wiring" class="mb-5">
       <h3 class="mb-3">Wiring (Quick Ref)</h3>
       <div class="row g-3">
@@ -293,10 +274,8 @@
       </div>
     </section>
 
-    <!-- All Details & Source Code -->
     <section id="all-details" class="mb-5">
       <h3 class="mb-3">All Details &amp; Source Code</h3>
-
       <div class="row g-3">
         <div class="col-md-6">
           <div class="card h-100">
@@ -308,7 +287,6 @@
             </div>
           </div>
         </div>
-
         <div class="col-md-6">
           <div class="card h-100">
             <div class="card-body">
@@ -326,7 +304,6 @@
       </div>
     </section>
 
-    <!-- Call to Action -->
     <section class="text-center py-4">
       <a class="btn btn-primary btn-lg" href="./reflex.html">Start Test</a>
     </section>

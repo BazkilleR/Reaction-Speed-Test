@@ -17,19 +17,24 @@
 
   <style>
     :root {
-      /* gradient พื้นหลังแบบเดียวกับหน้า Home */
-      --grad-hero: radial-gradient(1200px 500px at 20% -10%, rgba(86, 182, 194, .12), transparent 60%);
+      --grad-hero: radial-gradient(1200px 500px at 20% -10%, rgba(86, 182, 194, .12), transparent 60%)
     }
 
-    /* อ่านง่าย เน้นความชัด */
     html,
     body {
       font-family: "Sarabun", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
       line-height: 1.65;
-      letter-spacing: .1px;
+      letter-spacing: .1px
     }
 
-    /* หัวข้อ/เมนู (Inter) */
+    html {
+      scroll-behavior: smooth
+    }
+
+    .anchor {
+      scroll-margin-top: 80px
+    }
+
     h1,
     h2,
     h3,
@@ -41,26 +46,24 @@
     .badge,
     .table th {
       font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      letter-spacing: .2px;
+      letter-spacing: .2px
     }
 
     .navbar-brand {
-      font-weight: 600;
+      font-weight: 600
     }
 
     h1,
     h2,
     h3 {
-      font-weight: 600;
+      font-weight: 600
     }
 
-    /* โค้ด/ตัวเลขโมโน */
     .monospace {
       font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      font-size: .95rem;
+      font-size: .95rem
     }
 
-    /* ตัวเลขคอลัมน์สวย (KPI/ตาราง) */
     #kpiCount,
     #kpiAvg,
     #kpiBest,
@@ -69,36 +72,34 @@
     table td:nth-child(3) {
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum" 1, "lnum" 1;
-      letter-spacing: .15px;
+      letter-spacing: .15px
     }
 
-    /* hero gradient เหมือนหน้า Home */
     .hero {
-      background: var(--grad-hero);
+      background: var(--grad-hero)
     }
 
     .log {
       max-height: 220px;
       overflow: auto;
-      white-space: pre-wrap;
+      white-space: pre-wrap
     }
 
     .table-wrap {
       max-height: 55vh;
-      overflow: auto;
+      overflow: auto
     }
 
     canvas {
       background: rgba(255, 255, 255, .02);
       border: 1px solid rgba(255, 255, 255, .08);
-      border-radius: 10px;
+      border-radius: 10px
     }
   </style>
 </head>
 
 <body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg border-bottom">
+  <nav class="navbar navbar-expand-lg border-bottom sticky-top bg-body">
     <div class="container">
       <a class="navbar-brand fw-semibold" href="./">Reaction Speed Test</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
@@ -108,8 +109,10 @@
         <ul class="navbar-nav me-auto">
           <li class="nav-item"><a class="nav-link" href="./">Home</a></li>
           <li class="nav-item"><a class="nav-link active" href="./reflex.html">Reflex Test</a></li>
+          <li class="nav-item"><a class="nav-link" href="#section-table">Table</a></li>
+          <li class="nav-item"><a class="nav-link" href="#section-log">Log</a></li>
+          <li class="nav-item"><a class="nav-link" href="#section-charts">Charts</a></li>
         </ul>
-        <!-- ปุ่มสถานะ Serial -->
         <div class="d-flex align-items-center gap-2">
           <span id="statusBadge" class="badge text-bg-secondary">Disconnected</span>
           <button id="btnConnect" class="btn btn-primary btn-sm">Connect</button>
@@ -119,104 +122,102 @@
     </div>
   </nav>
 
-  <!-- Hero เหมือนหน้า Home -->
   <header class="hero py-4 border-bottom">
     <div class="container">
-      <h1 class="h3 fw-semibold mb-1">Reflex Test</h1>
-      <p class="text-secondary mb-0">เชื่อมต่อบอร์ดผ่าน Web Serial แล้วดูค่า Reaction (ms) แบบเรียลไทม์
-        พร้อมตารางและกราฟ</p>
+      <h1 class="h3 fw-semibold mb-2">Reflex Test</h1>
+      <p class="text-secondary mb-0 mt-2">เชื่อมต่อบอร์ดผ่าน Web Serial แล้วดูค่า Reaction (ms) แบบเรียลไทม์</p>
     </div>
   </header>
 
   <main class="container py-4">
     <div class="row g-3">
       <div class="col-lg-8">
-        <div class="card">
-          <div class="card-body">
-            <!-- KPI cards -->
-            <div class="row g-3">
-              <div class="col-6 col-md-3">
-                <div class="card text-center h-100">
-                  <div class="card-body">
-                    <div class="text-secondary small">Count</div>
-                    <div id="kpiCount" class="fs-4 fw-bold">0</div>
+        <section id="section-table" class="anchor">
+          <div class="card">
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-6 col-md-3">
+                  <div class="card text-center h-100">
+                    <div class="card-body">
+                      <div class="text-secondary small">Count</div>
+                      <div id="kpiCount" class="fs-4 fw-bold">0</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="card text-center h-100">
+                    <div class="card-body">
+                      <div class="text-secondary small">Average (ms)</div>
+                      <div id="kpiAvg" class="fs-4 fw-bold">–</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="card text-center h-100">
+                    <div class="card-body">
+                      <div class="text-secondary small">Best (ms)</div>
+                      <div id="kpiBest" class="fs-4 fw-bold">–</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="card text-center h-100">
+                    <div class="card-body">
+                      <div class="text-secondary small">Worst (ms)</div>
+                      <div id="kpiWorst" class="fs-4 fw-bold">–</div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="col-6 col-md-3">
-                <div class="card text-center h-100">
-                  <div class="card-body">
-                    <div class="text-secondary small">Average (ms)</div>
-                    <div id="kpiAvg" class="fs-4 fw-bold">–</div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-6 col-md-3">
-                <div class="card text-center h-100">
-                  <div class="card-body">
-                    <div class="text-secondary small">Best (ms)</div>
-                    <div id="kpiBest" class="fs-4 fw-bold">–</div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-6 col-md-3">
-                <div class="card text-center h-100">
-                  <div class="card-body">
-                    <div class="text-secondary small">Worst (ms)</div>
-                    <div id="kpiWorst" class="fs-4 fw-bold">–</div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <div class="d-flex gap-2 mt-3">
-              <button id="btnDownload" class="btn btn-success">Download CSV</button>
-              <button id="btnClear" class="btn btn-outline-danger">Clear</button>
-              <span class="ms-auto small text-secondary">จับข้อความ:
-                <code class="monospace">[RT] Reaction = &lt;ms&gt; ms</code></span>
-            </div>
+              <div class="d-flex gap-2 mt-3">
+                <button id="btnDownload" class="btn btn-success">Download CSV</button>
+                <button id="btnClear" class="btn btn-outline-danger">Clear</button>
+                <span class="ms-auto small text-secondary">จับข้อความ: <code
+                    class="monospace">[RT] Reaction = &lt;ms&gt; ms</code></span>
+              </div>
 
-            <div class="table-wrap border rounded mt-3">
-              <table class="table table-sm table-hover align-middle mb-0">
-                <thead class="table-secondary text-dark position-sticky top-0">
-                  <tr>
-                    <th>#</th>
-                    <th>Timestamp</th>
-                    <th>Reaction (ms)</th>
-                    <th>Note</th>
-                  </tr>
-                </thead>
-                <tbody id="tblBody"></tbody>
-              </table>
+              <div class="table-wrap border rounded mt-3">
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead class="table-secondary text-dark position-sticky top-0">
+                    <tr>
+                      <th>#</th>
+                      <th>Timestamp</th>
+                      <th>Reaction (ms)</th>
+                      <th>Note</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tblBody"></tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
       <div class="col-lg-4">
-        <div class="card h-100">
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex align-items-center justify-content-between">
-              <h6 class="mb-2">Live Log</h6>
-              <span id="stateBadge" class="badge rounded-pill text-bg-secondary">–</span>
-            </div>
-            <div id="log" class="log monospace border rounded p-2 flex-grow-1"></div>
-            <div class="form-text mt-2">
-              รองรับ: Ready / ARMED / GREEN / FALSE START / Reaction
+        <section id="section-log" class="anchor">
+          <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex align-items-center justify-content-between">
+                <h6 class="mb-2">Live Log</h6>
+                <span id="stateBadge" class="badge rounded-pill text-bg-secondary">–</span>
+              </div>
+              <div id="log" class="log monospace border rounded p-2 flex-grow-1"></div>
+              <div class="form-text mt-2">Ready / ARMED / GREEN / FALSE START / Reaction</div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
 
-    <!-- Charts -->
-    <div class="row g-3 mt-1">
+    <section id="section-charts" class="row g-3 mt-1 anchor">
       <div class="col-lg-8">
         <div class="card">
           <div class="card-body">
             <h6 class="mb-3">Reaction Timeline</h6>
             <canvas id="lineChart" height="110"></canvas>
-            <div class="form-text mt-2">เส้นแสดงค่า reaction (ms) ตามลำดับการกด</div>
+            <div class="form-text mt-2">ค่า reaction (ms) ตามลำดับการกด</div>
           </div>
         </div>
       </div>
@@ -231,18 +232,16 @@
               </div>
             </div>
             <canvas id="histChart" height="110"></canvas>
-            <div class="form-text mt-2">ฮิสโตแกรมกระจายค่า reaction (ms)</div>
+            <div class="form-text mt-2">การกระจายค่า reaction (ms)</div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </main>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // ==== Elements ====
     const btnConnect = document.getElementById('btnConnect');
     const btnDisconnect = document.getElementById('btnDisconnect');
     const statusBadge = document.getElementById('statusBadge');
@@ -257,16 +256,13 @@
     const kpiWorst = document.getElementById('kpiWorst');
     const binSizeInput = document.getElementById('binSize');
 
-    // ==== Serial state ====
     let port, reader, keepReading = false;
-    const results = []; // {ts, ms, note}
+    const results = [];
 
-    // ==== UI helpers ====
     function setConn(on) {
       statusBadge.textContent = on ? 'Connected' : 'Disconnected';
       statusBadge.className = 'badge ' + (on ? 'text-bg-success' : 'text-bg-secondary');
-      btnConnect.disabled = on;
-      btnDisconnect.disabled = !on;
+      btnConnect.disabled = on; btnDisconnect.disabled = !on;
     }
     function setState(text, tone = 'secondary') {
       stateBadge.textContent = text || '–';
@@ -277,28 +273,17 @@
       logEl.scrollTop = logEl.scrollHeight;
     }
 
-    // ==== Data & Table ====
     function addResult(ms, note = 'Reaction') {
       const ts = new Date();
       results.push({ ts, ms, note });
-
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${results.length}</td>
-                      <td>${ts.toLocaleString()}</td>
-                      <td>${ms}</td>
-                      <td>${note}</td>`;
+      tr.innerHTML = `<td>${results.length}</td><td>${ts.toLocaleString()}</td><td>${ms}</td><td>${note}</td>`;
       tblBody.appendChild(tr);
-
-      updateKPIs();
-      updateCharts();
+      updateKPIs(); updateCharts();
     }
 
     function updateKPIs() {
-      if (results.length === 0) {
-        kpiCount.textContent = '0';
-        kpiAvg.textContent = kpiBest.textContent = kpiWorst.textContent = '–';
-        return;
-      }
+      if (!results.length) { kpiCount.textContent = '0'; kpiAvg.textContent = kpiBest.textContent = kpiWorst.textContent = '–'; return; }
       const arr = results.map(r => r.ms);
       const sum = arr.reduce((a, b) => a + b, 0);
       kpiCount.textContent = arr.length;
@@ -318,35 +303,22 @@
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = `reflex_results_${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
-      a.click();
-      URL.revokeObjectURL(a.href);
+      a.click(); URL.revokeObjectURL(a.href);
     }
 
     function clearAll() {
-      results.length = 0;
-      tblBody.innerHTML = '';
-      updateKPIs();
-      appendLog('—— cleared ——');
-      setState('–');
-      updateCharts();
+      results.length = 0; tblBody.innerHTML = '';
+      updateKPIs(); appendLog('—— cleared ——'); setState('–'); updateCharts();
     }
 
-    // ==== Serial handling ====
     function handleLine(line) {
       appendLog(line);
-
       if (line.includes('Ready')) setState('Ready', 'info');
       if (line.includes('ARMED')) setState('Armed', 'warning');
       if (line.includes('GREEN')) setState('Green', 'success');
       if (line.includes('FALSE START')) setState('False Start', 'danger');
-
-      if (line.includes('Reaction')) {
-        const m = line.match(/Reaction\s*=\s*(\d+)\s*ms/i);
-        if (m) {
-          addResult(parseInt(m[1], 10));
-          setState('Result', 'primary');
-        }
-      }
+      const m = /Reaction\s*=\s*(\d+)\s*ms/i.exec(line);
+      if (m) { addResult(parseInt(m[1], 10)); setState('Result', 'primary'); }
     }
 
     async function connect() {
@@ -354,11 +326,9 @@
         port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
         setConn(true);
-
         const decoder = new TextDecoderStream();
         port.readable.pipeTo(decoder.writable);
         reader = decoder.readable.getReader();
-
         keepReading = true;
         let buffer = '';
         while (keepReading) {
@@ -390,23 +360,18 @@
       setConn(false);
     }
 
-    btnConnect.onclick = () => {
-      if (!('serial' in navigator)) {
-        alert('เบราว์เซอร์นี้ไม่รองรับ Web Serial. ใช้ Chrome/Edge บน Desktop และเปิดผ่าน HTTPS หรือ localhost');
-        return;
-      }
-      connect();
-    };
+    btnConnect.onclick = () => { if (!('serial' in navigator)) { alert('ไม่รองรับ Web Serial: ใช้ Chrome/Edge บน Desktop และ HTTPS หรือ localhost'); return; } connect(); };
     btnDisconnect.onclick = disconnect;
     document.getElementById('btnDownload').onclick = exportCSV;
     document.getElementById('btnClear').onclick = clearAll;
 
-    navigator.serial?.addEventListener?.('disconnect', () => {
-      appendLog('🔌 Serial disconnected');
-      setConn(false);
+    navigator.serial?.addEventListener?.('disconnect', () => { appendLog('🔌 Serial disconnected'); setConn(false); });
+
+    // ปิดเมนูบนมือถือหลังคลิก anchor
+    document.querySelectorAll('.navbar .nav-link[href^="#"]').forEach(a => {
+      a.addEventListener('click', () => { const nav = document.getElementById('navMain'); const bs = bootstrap.Collapse.getOrCreateInstance(nav); bs.hide(); });
     });
 
-    // ==== Charts ====
     const lineCtx = document.getElementById('lineChart').getContext('2d');
     const histCtx = document.getElementById('histChart').getContext('2d');
 
@@ -424,11 +389,10 @@
 
     function updateCharts() {
       const arr = results.map(r => r.ms);
-      // Line
       lineChart.data.labels = arr.map((_, i) => i + 1);
       lineChart.data.datasets[0].data = arr;
       lineChart.update('none');
-      // Histogram
+
       const bin = Math.max(10, parseInt(binSizeInput.value || '50', 10));
       const bins = makeHistogram(arr, bin);
       histChart.data.labels = bins.labels;
@@ -437,7 +401,7 @@
     }
 
     function makeHistogram(values, binSize = 50) {
-      if (values.length === 0) return { labels: [], counts: [] };
+      if (!values.length) return { labels: [], counts: [] };
       const min = Math.min(...values), max = Math.max(...values);
       const start = Math.floor(min / binSize) * binSize;
       const end = Math.ceil(max / binSize) * binSize;
@@ -451,7 +415,6 @@
     }
 
     binSizeInput.addEventListener('change', updateCharts);
-    // init
     updateCharts();
   </script>
 </body>
