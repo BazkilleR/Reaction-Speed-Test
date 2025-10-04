@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="th" data-bs-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reflex Timer Viewer (Bootstrap + Web Serial + Charts)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .monospace {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace
+    }
+
+    .log {
+      max-height: 220px;
+      overflow: auto;
+      white-space: pre-wrap
+    }
+
+    .table-wrap {
+      max-height: 55vh;
+      overflow: auto
+    }
+
+    canvas {
+      background: rgba(255, 255, 255, .02);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 10px
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg border-bottom">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="./">Reaction Speed</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="./">หน้าแรก</a></li>
+          <li class="nav-item"><a class="nav-link active" href="./reflex.html">ทดสอบรีเฟลกซ์</a></li>
+        </ul>
+        <!-- ปุ่มสถานะ Serial -->
+        <div class="d-flex align-items-center gap-2">
+          <span id="statusBadge" class="badge text-bg-secondary">Disconnected</span>
+          <button id="btnConnect" class="btn btn-primary btn-sm">Connect</button>
+          <button id="btnDisconnect" class="btn btn-outline-light btn-sm" disabled>Disconnect</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <div class="card text-center h-100">
+                  <div class="card-body">
+                    <div class="text-secondary small">Count</div>
+                    <div id="kpiCount" class="fs-4 fw-bold">0</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card text-center h-100">
+                  <div class="card-body">
+                    <div class="text-secondary small">Average (ms)</div>
+                    <div id="kpiAvg" class="fs-4 fw-bold">–</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card text-center h-100">
+                  <div class="card-body">
+                    <div class="text-secondary small">Best (ms)</div>
+                    <div id="kpiBest" class="fs-4 fw-bold">–</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card text-center h-100">
+                  <div class="card-body">
+                    <div class="text-secondary small">Worst (ms)</div>
+                    <div id="kpiWorst" class="fs-4 fw-bold">–</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button id="btnDownload" class="btn btn-success">Download CSV</button>
+              <button id="btnClear" class="btn btn-outline-danger">Clear</button>
+              <span class="ms-auto small text-secondary">จับข้อความ:
+                <code class="monospace">[RT] Reaction = &lt;ms&gt; ms</code></span>
+            </div>
+
+            <div class="table-wrap border rounded mt-3">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-secondary text-dark position-sticky top-0">
+                  <tr>
+                    <th>#</th>
+                    <th>Timestamp</th>
+                    <th>Reaction (ms)</th>
+                    <th>Note</th>
+                  </tr>
+                </thead>
+                <tbody id="tblBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex align-items-center justify-content-between">
+              <h6 class="mb-2">Live Log</h6>
+              <span id="stateBadge" class="badge rounded-pill text-bg-secondary">–</span>
+            </div>
+            <div id="log" class="log monospace border rounded p-2 flex-grow-1"></div>
+            <div class="form-text mt-2">
+              รองรับ: Ready / ARMED / GREEN / FALSE START / Reaction
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-3 mt-1">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="mb-3">Reaction Timeline</h6>
+            <canvas id="lineChart" height="110"></canvas>
+            <div class="form-text mt-2">เส้นแสดงค่า reaction (ms) ตามลำดับการกด</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+              <h6 class="mb-3">Distribution</h6>
+              <div class="input-group input-group-sm" style="width:140px;">
+                <span class="input-group-text">Bin</span>
+                <input id="binSize" type="number" class="form-control" value="50" min="10" step="10">
+              </div>
+            </div>
+            <canvas id="histChart" height="110"></canvas>
+            <div class="form-text mt-2">ฮิสโตแกรมกระจายค่า reaction (ms)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ==== Elements ====
+    const btnConnect = document.getElementById('btnConnect');
+    const btnDisconnect = document.getElementById('btnDisconnect');
+    const statusBadge = document.getElementById('statusBadge');
+    const stateBadge = document.getElementById('stateBadge');
+    const logEl = document.getElementById('log');
+    const tblBody = document.getElementById('tblBody');
+    const btnCSV = document.getElementById('btnDownload');
+    const btnClear = document.getElementById('btnClear');
+    const kpiCount = document.getElementById('kpiCount');
+    const kpiAvg = document.getElementById('kpiAvg');
+    const kpiBest = document.getElementById('kpiBest');
+    const kpiWorst = document.getElementById('kpiWorst');
+    const binSizeInput = document.getElementById('binSize');
+
+    // ==== Serial state ====
+    let port, reader, keepReading = false;
+    const results = []; // {ts, ms, note}
+
+    // ==== UI helpers ====
+    function setConn(on) {
+      statusBadge.textContent = on ? 'Connected' : 'Disconnected';
+      statusBadge.className = 'badge ' + (on ? 'text-bg-success' : 'text-bg-secondary');
+      btnConnect.disabled = on;
+      btnDisconnect.disabled = !on;
+    }
+    function setState(text, tone = 'secondary') {
+      stateBadge.textContent = text || '–';
+      stateBadge.className = 'badge rounded-pill text-bg-' + tone;
+    }
+    function appendLog(line) {
+      logEl.textContent += line + '\n';
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // ==== Data & Table ====
+    function addResult(ms, note = 'Reaction') {
+      const ts = new Date();
+      results.push({ ts, ms, note });
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${results.length}</td>
+                      <td>${ts.toLocaleString()}</td>
+                      <td>${ms}</td>
+                      <td>${note}</td>`;
+      tblBody.appendChild(tr);
+
+      updateKPIs();
+      updateCharts();
+    }
+
+    function updateKPIs() {
+      if (results.length === 0) {
+        kpiCount.textContent = '0';
+        kpiAvg.textContent = kpiBest.textContent = kpiWorst.textContent = '–';
+        return;
+      }
+      const arr = results.map(r => r.ms);
+      const sum = arr.reduce((a, b) => a + b, 0);
+      kpiCount.textContent = arr.length;
+      kpiAvg.textContent = (sum / arr.length).toFixed(1);
+      kpiBest.textContent = Math.min(...arr);
+      kpiWorst.textContent = Math.max(...arr);
+    }
+
+    function exportCSV() {
+      const header = ['index', 'timestamp', 'reaction_ms', 'note'];
+      const lines = [header.join(',')];
+      results.forEach((r, i) => {
+        const row = [i + 1, r.ts.toISOString(), r.ms, '"' + (r.note || '').replace(/"/g, '""') + '"'];
+        lines.push(row.join(','));
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `reflex_results_${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function clearAll() {
+      results.length = 0;
+      tblBody.innerHTML = '';
+      updateKPIs();
+      appendLog('—— cleared ——');
+      setState('–');
+      updateCharts();
+    }
+
+    // ==== Serial handling ====
+    function handleLine(line) {
+      appendLog(line);
+
+      if (line.includes('Ready')) setState('Ready', 'info');
+      if (line.includes('ARMED')) setState('Armed', 'warning');
+      if (line.includes('GREEN')) setState('Green', 'success');
+      if (line.includes('FALSE START')) setState('False Start', 'danger');
+
+      if (line.includes('Reaction')) {
+        const m = line.match(/Reaction\s*=\s*(\d+)\s*ms/i);
+        if (m) {
+          addResult(parseInt(m[1], 10));
+          setState('Result', 'primary');
+        }
+      }
+    }
+
+    async function connect() {
+      try {
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 9600 });
+        setConn(true);
+
+        const decoder = new TextDecoderStream();
+        port.readable.pipeTo(decoder.writable);
+        reader = decoder.readable.getReader();
+
+        keepReading = true;
+        let buffer = '';
+        while (keepReading) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (value) {
+            buffer += value;
+            let idx;
+            while ((idx = buffer.indexOf('\n')) >= 0) {
+              const line = buffer.slice(0, idx).replace(/\r/g, '').trim();
+              buffer = buffer.slice(idx + 1);
+              if (line) handleLine(line);
+            }
+          }
+        }
+      } catch (e) {
+        appendLog('❌ Failed to open serial port');
+        appendLog('   ' + (e.message || e));
+        setConn(false);
+      }
+    }
+
+    async function disconnect() {
+      try {
+        keepReading = false;
+        if (reader) { await reader.cancel(); reader.releaseLock(); }
+        if (port) { await port.close(); }
+      } catch (e) { }
+      setConn(false);
+    }
+
+    btnConnect.onclick = () => {
+      if (!('serial' in navigator)) {
+        alert('เบราว์เซอร์นี้ไม่รองรับ Web Serial. ใช้ Chrome/Edge บน Desktop และเปิดผ่าน HTTPS หรือ localhost');
+        return;
+      }
+      connect();
+    };
+    btnDisconnect.onclick = disconnect;
+    btnCSV.onclick = exportCSV;
+    btnClear.onclick = clearAll;
+
+    navigator.serial?.addEventListener?.('disconnect', () => {
+      appendLog('🔌 Serial disconnected');
+      setConn(false);
+    });
+
+    // ==== Charts ====
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+    const histCtx = document.getElementById('histChart').getContext('2d');
+
+    const lineChart = new Chart(lineCtx, {
+      type: 'line',
+      data: { labels: [], datasets: [{ label: 'Reaction (ms)', data: [], tension: .2, fill: false, pointRadius: 3 }] },
+      options: { responsive: true, scales: { x: { title: { display: true, text: 'Attempt' } }, y: { title: { display: true, text: 'ms' }, beginAtZero: true } }, plugins: { legend: { display: false } } }
+    });
+
+    let histChart = new Chart(histCtx, {
+      type: 'bar',
+      data: { labels: [], datasets: [{ label: 'Count', data: [] }] },
+      options: { responsive: true, scales: { x: { title: { display: true, text: 'Reaction (ms)' } }, y: { title: { display: true, text: 'Count' }, beginAtZero: true, precision: 0 } }, plugins: { legend: { display: false } } }
+    });
+
+    function updateCharts() {
+      const arr = results.map(r => r.ms);
+      lineChart.data.labels = arr.map((_, i) => i + 1);
+      lineChart.data.datasets[0].data = arr;
+      lineChart.update('none');
+
+      const bin = Math.max(10, parseInt(binSizeInput.value || '50', 10));
+      const bins = makeHistogram(arr, bin);
+      histChart.data.labels = bins.labels;
+      histChart.data.datasets[0].data = bins.counts;
+      histChart.update('none');
+    }
+
+    function makeHistogram(values, binSize = 50) {
+      if (values.length === 0) return { labels: [], counts: [] };
+      const min = Math.min(...values), max = Math.max(...values);
+      const start = Math.floor(min / binSize) * binSize;
+      const end = Math.ceil(max / binSize) * binSize;
+      const labels = [], counts = [];
+      for (let b = start; b <= end; b += binSize) { labels.push(`${b}-${b + binSize}`); counts.push(0); }
+      values.forEach(v => {
+        const idx = Math.min(labels.length - 1, Math.floor((v - start) / binSize));
+        counts[idx] = (counts[idx] || 0) + 1;
+      });
+      return { labels, counts };
+    }
+
+    binSizeInput.addEventListener('change', updateCharts);
+    updateCharts();
+  </script>
+</body>
+
+</html>
