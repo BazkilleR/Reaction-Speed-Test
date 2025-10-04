@@ -71,6 +71,16 @@
     .lead-compact {
       line-height: 1.6
     }
+
+    /* สไตล์รายการตรวจเช็คเล็ก ๆ */
+    .check li::marker {
+      content: "✔ ";
+      color: #2ecc71;
+    }
+
+    .warn {
+      color: #ffc107;
+    }
   </style>
 </head>
 
@@ -103,6 +113,8 @@
       <div class="d-flex gap-2">
         <a class="btn btn-primary" href="./reflex.html">Start Test</a>
         <a class="btn btn-outline-light" href="#abstract">View Abstract</a>
+        <!-- ปุ่มไปวิธีทดสอบ -->
+        <a class="btn btn-outline-light" href="#test-procedure">View Test Guide</a>
       </div>
     </div>
   </header>
@@ -152,6 +164,101 @@
       <div class="alert alert-secondary small">
         ใช้เว็บเบราว์เซอร์: Chrome/Edge (Desktop) และเปิดผ่าน HTTPS (เช่น GitHub Pages) หรือ localhost
       </div>
+    </section>
+
+    <!-- ✅ Test Procedure -->
+    <section id="test-procedure" class="mb-5">
+      <h3 class="mb-3">Test Procedure</h3>
+
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="text-secondary">1) เตรียมฮาร์ดแวร์</h6>
+              <ul class="mb-0 check">
+                <li>ต่อจอ <strong>TM1637</strong> → VCC=5V, GND=GND, CLK=D3, DIO=D6</li>
+                <li>ปุ่มกด → D2 ↔ GND และตั้ง <span class="mono">INPUT_PULLUP</span> ในโค้ด</li>
+                <li>LED แดง D4 → R 220–330Ω → LED → GND</li>
+                <li>LED เขียว D5 → R 220–330Ω → LED → GND</li>
+                <li>เสียบบอร์ด <strong>Arduino UNO R4</strong> เข้าคอมพิวเตอร์ด้วยสาย USB</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="text-secondary">2) อัปโหลดสเก็ตช์</h6>
+              <ul class="mb-0">
+                <li>เปิด Arduino IDE เลือกบอร์ดและพอร์ตให้ตรงกับ UNO R4</li>
+                <li>ติดตั้งไลบรารี <span class="mono">TM1637Display</span> (ผ่าน Library Manager)</li>
+                <li>อัปโหลดสเก็ตช์ที่ส่งบรรทัดผลลัพธ์รูปแบบ <span class="mono">[RT] Reaction = &lt;ms&gt; ms</span> ทาง
+                  Serial ที่ <span class="mono">9600</span> bps</li>
+                <li>หลังบูต จอควรแสดง 0 และไฟทดสอบติดดับสั้น ๆ</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="text-secondary">3) เปิดหน้าเว็บทดสอบ</h6>
+              <ul class="mb-0">
+                <li>ไปที่เมนู <strong>Reflex Test</strong> หรือเปิด <span class="mono">reflex.html</span></li>
+                <li>คลิก <strong>Connect</strong> → เลือกพอร์ตของบอร์ด → กด <strong>Connect</strong></li>
+                <li>สถานะเปลี่ยนเป็น <span class="badge text-bg-success">Connected</span> และมี Live Log</li>
+                <li class="warn">หมายเหตุ: ใช้ Chrome/Edge (Desktop) และเปิดผ่าน HTTPS (เช่น GitHub Pages) หรือ <span
+                    class="mono">http://localhost</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="text-secondary">4) วิธีเล่น/ทดสอบ</h6>
+              <ol class="mb-0">
+                <li>กดปุ่มที่บอร์ด 1 ครั้งเพื่อ “เริ่มรอ” (ไฟแดงติด)</li>
+                <li>รอจนไฟเขียว (READY) ติด—ห้ามก่อนเวลา ไม่งั้น <em>False Start</em></li>
+                <li>ไฟเขียวติดแล้วให้กดปุ่มทันที ระบบจะแสดงเวลาตอบสนอง (ms)</li>
+                <li>ผลจะถูกเพิ่มในตาราง/กราฟอัตโนมัติ</li>
+                <li>กดปุ่มอีกครั้งเพื่อรีเซตกลับสู่สถานะเริ่มต้นและทดสอบรอบถัดไป</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="text-secondary">5) บันทึก/ดูสถิติ</h6>
+              <ul class="mb-0">
+                <li>กด <strong>Download CSV</strong> เพื่อบันทึกผลทั้งหมดเป็นไฟล์ .csv</li>
+                <li>กล่อง KPI แสดง <em>Count / Average / Best / Worst</em> แบบเรียลไทม์</li>
+                <li>กราฟเส้น = ค่าตามลำดับการกด, ฮิสโตแกรม = การกระจายค่า (ปรับ Bin ได้)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="text-secondary">Troubleshooting</h6>
+              <ul class="mb-0">
+                <li>ขึ้น “Failed to open serial port” → ปิด Serial Monitor ของ IDE และลอง Connect ใหม่</li>
+                <li>ไม่เห็นพอร์ต → ตรวจสาย/ไดรเวอร์ และรีพลักบอร์ด</li>
+                <li>ไม่มี Live Log → เช็กว่าโค้ดพิมพ์บรรทัด <span class="mono">[RT] Reaction = &lt;ms&gt; ms</span>
+                  ตรงรูปแบบ</li>
+                <li>หน้าเว็บยัง Connect ไม่ได้ → ตรวจว่าเปิดผ่าน HTTPS หรือ <span class="mono">localhost</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div><!-- /row -->
     </section>
 
     <!-- Wiring quick ref -->
